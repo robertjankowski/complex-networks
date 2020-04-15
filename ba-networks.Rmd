@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-ba <- read.csv("ba_n=100000.txt", header = FALSE, )
+ba <- read.csv("ba_n=100000.txt", header = FALSE)
 colnames(ba) <- c("degree")
 head(ba)
 ```

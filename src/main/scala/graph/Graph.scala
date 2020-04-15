@@ -1,3 +1,5 @@
+package graph
+
 trait Graph[T] {
 
   def nodes: List[T]
@@ -10,10 +12,11 @@ trait Graph[T] {
 
   def addEdgesFrom(edges: List[(T, T)]): Unit
 
-  def degree(node: T): Int
-
   def degree(): List[Int]
 
-  def hasEdge(from: T, to: T): Boolean
-}
+  def degree(node: T): Either[GraphException, Int]
 
+  def hasEdge(from: T, to: T): Boolean
+
+  def neighbours(node: T): Either[GraphException, List[T]]
+}

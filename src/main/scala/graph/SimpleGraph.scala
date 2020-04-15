@@ -1,3 +1,5 @@
+package graph
+
 import scala.collection.mutable
 
 /**
@@ -35,21 +37,32 @@ abstract class SimpleGraph[T]() extends Graph[T] {
     if (!adjacencyList.contains(vertex))
       adjacencyList.addOne(vertex, mutable.Set.empty[T])
 
-  override def degree(node: T): Int = adjacencyList(node).size
+  override def degree(node: T): Either[GraphException, Int] =
+    adjacencyList
+      .get(node)
+      .map(_.size)
+      .toRight(GraphNotFoundNodeException)
 
   override def degree(): List[Int] = adjacencyList.map {
     case (_, nodes) => nodes.size
   }.toList
 
   override def hasEdge(from: T, to: T): Boolean =
-    adjacencyList.get(from).exists(nodes => nodes.contains(to))
+    adjacencyList
+      .get(from)
+      .exists(nodes => nodes.contains(to))
 
-  override def toString: String = {
+  override def neighbours(node: T): Either[GraphException, List[T]] =
+    adjacencyList
+      .get(node)
+      .map(_.toList)
+      .toRight(GraphNotFoundNodeException)
+
+  override def toString: String =
     (for {
       (keys, nodes) <- adjacencyList
     } yield keys + "-> " + nodes.mkString(","))
       .mkString("\n")
-  }
 }
 
 object SimpleGraph {

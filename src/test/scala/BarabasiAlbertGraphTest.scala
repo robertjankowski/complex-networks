@@ -1,3 +1,4 @@
+import graph.BarabasiAlbertGraph
 import org.scalatest._
 
 
