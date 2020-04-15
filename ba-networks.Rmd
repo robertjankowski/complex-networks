@@ -1,0 +1,37 @@
+---
+title: "ba-networks"
+author: "Robert Jankowski"
+date: "15 04 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+ba <- read.csv("ba_n=100000.txt", header = FALSE, )
+colnames(ba) <- c("degree")
+head(ba)
+```
+
+```{r}
+log_scale <- function(x, n) exp(seq(log(x[1]), log(x[length(x)]), length.out = n))
+
+log_breaks <- seq(min(ba$degree), max(ba$degree), length.out = 20)
+log_breaks <- log_scale(log_breaks, 20)
+
+h_degree <- hist(ba$degree, breaks = log_breaks, plot = FALSE)
+
+degree_fit <- lm(log(h_degree$density)~log(h_degree$mids))
+A <- degree_fit$coefficients[1]
+alpha <- degree_fit$coefficients[2]
+```
+
+```{r}
+plot(h_degree$mids, h_degree$density, log = "xy", pch = 19, xlab = "k", ylab = "P(k)",
+     main = substitute(paste(alpha, " = ",a), list(a = round(alpha, 2))))
+lines(log_breaks, exp(A) * log_breaks ** alpha, col = "red", lty = 2, lwd = 2)
+```
+

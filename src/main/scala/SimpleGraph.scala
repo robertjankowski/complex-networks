@@ -12,9 +12,23 @@ abstract class SimpleGraph[T]() extends Graph[T] {
   override def nodes: List[T] = adjacencyList.keys.toList
 
   override def edges: List[(T, T)] = {
-    adjacencyList.flatMap { case (from, nodes) =>
-      nodes.map(to => (from, to))
-    }.toList
+    val edges = mutable.Set[(T, T)]()
+    val allEdges = adjacencyList.map {
+      case (from, nodes) =>
+        nodes.toList.map(to => (from, to))
+    }.toList.flatten
+    allEdges.filter { case node@(from, to) =>
+      if (edges(node)) false
+      else {
+        edges += node
+        edges += ((to, from))
+        true
+      }
+    }
+  }
+
+  override def addEdgesFrom(edges: List[(T, T)]): Unit = {
+    edges.foreach { case (from, to) => addEdge(from, to) }
   }
 
   override def addVertex(vertex: T): Unit =
@@ -22,6 +36,10 @@ abstract class SimpleGraph[T]() extends Graph[T] {
       adjacencyList.addOne(vertex, mutable.Set.empty[T])
 
   override def degree(node: T): Int = adjacencyList(node).size
+
+  override def degree(): List[Int] = adjacencyList.map {
+    case (_, nodes) => nodes.size
+  }.toList
 
   override def hasEdge(from: T, to: T): Boolean =
     adjacencyList.get(from).exists(nodes => nodes.contains(to))

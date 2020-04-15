@@ -54,4 +54,10 @@ class SimpleGraphTest extends FunSuite with Matchers {
     val ud = g.toUndirected
     ud.edges should contain theSameElementsAs List(("a", "c"), ("c", "a"), ("b", "d"), ("d", "b"))
   }
+
+  test("should check number of edges in complete graph") {
+    val N = 10
+    val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], N)
+    g.edges.length shouldEqual N * (N - 1) / 2
+  }
 }
