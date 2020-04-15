@@ -52,7 +52,7 @@ class SimpleGraphTest extends FunSuite with Matchers {
     g.addEdge("a", "c")
     g.addEdge("b", "d")
     val ud = g.toUndirected
-    ud.edges should contain theSameElementsAs List(("a", "c"), ("c", "a"), ("b", "d"), ("d", "b"))
+    ud.edges should contain theSameElementsAs List(("a", "c"), ("b", "d"))
   }
 
   test("should check number of edges in complete graph") {
