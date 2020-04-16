@@ -7,7 +7,7 @@ import scala.collection.mutable
  *
  * @tparam T type of vertex
  */
-abstract class SimpleGraph[T]() extends Graph[T] {
+abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
 
   protected val adjacencyList: mutable.Map[T, mutable.Set[T]] = mutable.Map()
 
@@ -57,6 +57,28 @@ abstract class SimpleGraph[T]() extends Graph[T] {
       .get(node)
       .map(_.toList)
       .toRight(GraphNotFoundNodeException)
+
+  override def clusteringCoefficient(node: T): Double = {
+    val nodeNeighbours = neighbours(node).getOrElse(List.empty)
+    var neighboursEdges = 0.0
+    for {
+      i <- nodeNeighbours
+      j <- nodeNeighbours
+      if hasEdge(i, j) && i != j
+    } neighboursEdges += 1
+    if (neighboursEdges > 0) {
+      val nodeDegree = degree(node).getOrElse(1)
+      neighboursEdges / (nodeDegree * (nodeDegree - 1))
+    }
+    else
+      0.0
+  }
+
+  override def clusteringCoefficient(): Double = {
+    var totalClusteringCoefficient = 0.0
+    nodes.foreach(totalClusteringCoefficient += clusteringCoefficient(_))
+    totalClusteringCoefficient / nodes.length
+  }
 
   override def toString: String =
     (for {

@@ -84,4 +84,20 @@ class SimpleGraphTest extends FunSuite with Matchers {
       case Right(_) =>
     }
   }
+
+  test("should correctly calculate C") {
+    val g = new UndirectedSimpleGraph[Int]
+    g.addEdge(1, 2)
+    g.addEdge(1, 3)
+    g.addEdge(1, 4)
+    g.addEdge(1, 5)
+    g.addEdge(3, 4)
+    g.clusteringCoefficient(1) shouldEqual (1.0 / 6)
+  }
+
+  test("should complete graph has zero C") {
+    val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], 10)
+    g.clusteringCoefficient() shouldEqual 1.0
+  }
+
 }

@@ -1,6 +1,8 @@
 package graph
 
-object GraphMetrics {
+trait GraphMetrics[T] {
 
-  def clusteringCoefficient[G <: Graph[_]](g: G): Double = ???
+  def clusteringCoefficient(node: T): Double
+
+  def clusteringCoefficient(): Double
 }

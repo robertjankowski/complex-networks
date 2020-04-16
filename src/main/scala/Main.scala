@@ -1,12 +1,10 @@
-import graph.{BarabasiAlbertGraph, GraphUtils}
-import utils.Timer
+import graph.BarabasiAlbertSimulation
 
 object Main extends App {
-  val m = 3
-  for {
-    n <- List(100, 1000, 10000, 100000, 1000000)
-  } Timer.timer {
-    BarabasiAlbertGraph.generate(n, m, m)
-      .map(GraphUtils.saveDegrees(_, s"ba_n=${n}_m=$m.txt"))
-  }
+  val sizes = List(100, 1000, 10000, 100000, 1000000)
+  val ms = List(1, 2, 5)
+  // BarabasiAlbertSimulation.degreeDistributionExperiment(sizes, ms, "output/ba_degree")
+
+  val sizes2 = List(50, 100, 200, 500, 1000, 2000, 5000)
+  BarabasiAlbertSimulation.clusteringCoefficientExperiment(sizes2, s"output/ba_clustering_coefficient.txt")
 }
