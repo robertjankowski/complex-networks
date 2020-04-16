@@ -2,7 +2,9 @@
 title: "ba-networks"
 author: "Robert Jankowski"
 date: "15 04 2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,27 +13,137 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-ba <- read.csv("ba_n=100000.txt", header = FALSE)
-colnames(ba) <- c("degree")
-head(ba)
-```
+load_file <- function(filename) {
+  df <- read.csv(filename, header = FALSE)
+  colnames(df) <- c("degree")
+  df
+}
 
-```{r}
 log_scale <- function(x, n) exp(seq(log(x[1]), log(x[length(x)]), length.out = n))
 
-log_breaks <- seq(min(ba$degree), max(ba$degree), length.out = 20)
-log_breaks <- log_scale(log_breaks, 20)
+fit_powerlaw <- function(ba, bins = 20) {
+  log_breaks <- seq(min(ba$degree), max(ba$degree), length.out = bins)
+  log_breaks <- log_scale(log_breaks, bins)
+  h_degree <- hist(ba$degree, breaks = log_breaks, plot = FALSE)
+  
+  degree_fit <- lm(log(h_degree$density)~log(h_degree$mids))
+  
+  A <- degree_fit$coefficients[1]
+  alpha <- degree_fit$coefficients[2]
+  list(x = h_degree$mids, 
+       y = h_degree$density, 
+       log_breaks = log_breaks, 
+       A = A, 
+       alpha = alpha)
+}
+```
 
-h_degree <- hist(ba$degree, breaks = log_breaks, plot = FALSE)
+## Degree distribution
 
-degree_fit <- lm(log(h_degree$density)~log(h_degree$mids))
-A <- degree_fit$coefficients[1]
-alpha <- degree_fit$coefficients[2]
+```{r}
+plot_degree_distribution_m <- function(fit_ba_models, size) {
+  ba_m_1 <- fit_ba_models[[1]]
+  ba_m_2 <- fit_ba_models[[2]]
+  ba_m_5 <- fit_ba_models[[3]]
+  
+  y_max <- max(ba_m_1$y, ba_m_2$y, ba_m_5$y)
+  y_min <- min(ba_m_1$y, ba_m_2$y, ba_m_5$y)
+  x_max <- max(ba_m_1$x, ba_m_2$x, ba_m_5$x)
+  x_min <- min(ba_m_1$x, ba_m_2$x, ba_m_5$x)
+  
+  plot(ba_m_1$x, ba_m_1$y, log = "xy", pch = 19, xlab = "k", ylab = "P(k)", 
+       col = "red", ylim = c(y_min, y_max), xlim = c(x_min, x_max), 
+       main = paste("BA degree distribution N = ", size))
+  lines(ba_m_1$log_breaks, exp(ba_m_1$A) * ba_m_1$log_breaks ** ba_m_1$alpha, 
+        col = "red", lty = 1, lwd = 2)
+  
+  points(ba_m_2$x, ba_m_2$y, pch = 19,  col = "blue")
+  lines(ba_m_2$log_breaks, exp(ba_m_2$A) * ba_m_2$log_breaks ** ba_m_2$alpha, 
+        col = "blue", lty = 1, lwd = 2)
+  
+  points(ba_m_5$x, ba_m_5$y, pch = 19, col = "green")
+  lines(ba_m_5$log_breaks, exp(ba_m_5$A) * ba_m_5$log_breaks ** ba_m_5$alpha, 
+        col = "green", lty = 1, lwd = 2)
+  
+  m_1 <- paste("m=1 | alpha=", round(ba_m_1$alpha, 2))
+  m_2 <- paste("m=2 | alpha=", round(ba_m_2$alpha, 2))
+  m_5 <- paste("m=5 | alpha=", round(ba_m_5$alpha, 2))
+  legend("topright", legend = c(m_1, m_2, m_5), col = c("red", "blue", "green"), 
+         lty = 1, cex = 1)
+}
 ```
 
 ```{r}
-plot(h_degree$mids, h_degree$density, log = "xy", pch = 19, xlab = "k", ylab = "P(k)",
-     main = substitute(paste(alpha, " = ",a), list(a = round(alpha, 2))))
-lines(log_breaks, exp(A) * log_breaks ** alpha, col = "red", lty = 2, lwd = 2)
+ba_m_1_n_100 <- load_file("output/ba_degree_n=100_m=1.txt")
+ba_m_2_n_100 <- load_file("output/ba_degree_n=100_m=2.txt")
+ba_m_5_n_100 <- load_file("output/ba_degree_n=100_m=5.txt")
+
+fit_ba_m_1_n_100 <- fit_powerlaw(ba_m_1_n_100, bins = 7)
+fit_ba_m_2_n_100 <- fit_powerlaw(ba_m_2_n_100, bins = 7)
+fit_ba_m_5_n_100 <- fit_powerlaw(ba_m_5_n_100, bins = 7)
+
+plot_degree_distribution_m(list(fit_ba_m_1_n_100, fit_ba_m_2_n_100, fit_ba_m_5_n_100), 100)
+```
+
+```{r}
+ba_m_1_n_1000 <- load_file("output/ba_degree_n=1000_m=1.txt")
+ba_m_2_n_1000 <- load_file("output/ba_degree_n=1000_m=2.txt")
+ba_m_5_n_1000 <- load_file("output/ba_degree_n=1000_m=5.txt")
+
+fit_ba_m_1_n_1000 <- fit_powerlaw(ba_m_1_n_1000, bins = 10)
+fit_ba_m_2_n_1000 <- fit_powerlaw(ba_m_2_n_1000, bins = 10)
+fit_ba_m_5_n_1000 <- fit_powerlaw(ba_m_5_n_1000, bins = 10)
+
+plot_degree_distribution_m(list(fit_ba_m_1_n_1000, fit_ba_m_2_n_1000, fit_ba_m_5_n_1000), 1000)
+```
+
+```{r}
+ba_m_1_n_10000 <- load_file("output/ba_degree_n=10000_m=1.txt")
+ba_m_2_n_10000 <- load_file("output/ba_degree_n=10000_m=2.txt")
+ba_m_5_n_10000 <- load_file("output/ba_degree_n=10000_m=5.txt")
+
+fit_ba_m_1_n_10000 <- fit_powerlaw(ba_m_1_n_10000, bins = 10)
+fit_ba_m_2_n_10000 <- fit_powerlaw(ba_m_2_n_10000, bins = 10)
+fit_ba_m_5_n_10000 <- fit_powerlaw(ba_m_5_n_10000, bins = 10)
+
+plot_degree_distribution_m(list(fit_ba_m_1_n_10000, fit_ba_m_2_n_10000, fit_ba_m_5_n_10000), 10000)
+```
+
+```{r}
+ba_m_1_n_100000 <- load_file("output/ba_degree_n=100000_m=1.txt")
+ba_m_2_n_100000 <- load_file("output/ba_degree_n=100000_m=2.txt")
+ba_m_5_n_100000 <- load_file("output/ba_degree_n=100000_m=5.txt")
+
+fit_ba_m_1_n_100000 <- fit_powerlaw(ba_m_1_n_100000, bins = 15)
+fit_ba_m_2_n_100000 <- fit_powerlaw(ba_m_2_n_100000, bins = 15)
+fit_ba_m_5_n_100000 <- fit_powerlaw(ba_m_5_n_100000, bins = 15)
+
+plot_degree_distribution_m(list(fit_ba_m_1_n_100000, fit_ba_m_2_n_100000, fit_ba_m_5_n_100000), 100000)
+```
+
+```{r}
+ba_m_1_n_1000000 <- load_file("output/ba_degree_n=1000000_m=1.txt")
+ba_m_2_n_1000000 <- load_file("output/ba_degree_n=1000000_m=2.txt")
+ba_m_5_n_1000000 <- load_file("output/ba_degree_n=1000000_m=5.txt")
+
+fit_ba_m_1_n_1000000 <- fit_powerlaw(ba_m_1_n_1000000, bins = 15)
+fit_ba_m_2_n_1000000 <- fit_powerlaw(ba_m_2_n_1000000, bins = 15)
+fit_ba_m_5_n_1000000 <- fit_powerlaw(ba_m_5_n_1000000, bins = 15)
+
+plot_degree_distribution_m(list(fit_ba_m_1_n_1000000, fit_ba_m_2_n_1000000, fit_ba_m_5_n_1000000), 1000000)
+```
+
+## Clustering coefficient
+```{r}
+library(ggthemes)
+
+clustering <- read.csv("output/ba_clustering_coefficient.txt", header = FALSE)
+colnames(clustering) <- c("C", "N")
+
+ggplot(clustering) + 
+  geom_point(aes(N, C), size = 2.5) +
+  scale_x_log10() +
+  theme_few() +
+  theme(panel.grid.minor = element_line(size = 0.2, colour = "grey"))
 ```
 
