@@ -1,5 +1,7 @@
 package graph
 
+import path.BreathFirstSearch
+
 import scala.collection.mutable
 
 /**
@@ -13,7 +15,7 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
 
   override def nodes: List[T] = adjacencyList.keys.toList
 
-  override def edges: List[(T, T)] = {
+  override def edges(): List[(T, T)] = {
     val edges = mutable.Set[(T, T)]()
     val allEdges = adjacencyList.map {
       case (from, nodes) =>
@@ -28,6 +30,8 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
       }
     }
   }
+
+  override def edges(node: T): List[T] = adjacencyList.getOrElse(node, List.empty).toList
 
   override def addEdgesFrom(edges: List[(T, T)]): Unit = {
     edges.foreach { case (from, to) => addEdge(from, to) }
@@ -51,6 +55,8 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
     adjacencyList
       .get(from)
       .exists(nodes => nodes.contains(to))
+
+  override def hasNode(node: T): Boolean = adjacencyList.contains(node)
 
   override def neighbours(node: T): Either[GraphException, List[T]] =
     adjacencyList
@@ -78,6 +84,16 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
     var totalClusteringCoefficient = 0.0
     nodes.foreach(totalClusteringCoefficient += clusteringCoefficient(_))
     totalClusteringCoefficient / nodes.length
+  }
+
+  override def averageShortestPath(): Double = {
+    val shortestPathsDistance = (for {
+      i <- nodes
+      j <- nodes
+      if i != j
+    } yield BreathFirstSearch.shortestPath(this, i, j).getOrElse(List.empty).length - 1).sum
+    val N = nodes.length
+    shortestPathsDistance.toDouble / (N * (N - 1))
   }
 
   override def toString: String =

@@ -100,4 +100,18 @@ class SimpleGraphTest extends FunSuite with Matchers {
     g.clusteringCoefficient() shouldEqual 1.0
   }
 
+  test("should return edges for given node") {
+    val g = new UndirectedSimpleGraph[Int]
+    g.addEdge(1, 2)
+    g.addEdge(1, 3)
+    g.edges(1) should contain theSameElementsAs List(2, 3)
+    g.edges(2) should contain theSameElementsAs List(1)
+    g.edges(10) shouldEqual List.empty
+  }
+
+  test("should calculate average shortest path") {
+    val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], 10)
+    g.averageShortestPath() shouldEqual 1.0
+  }
+
 }

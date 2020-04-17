@@ -16,16 +16,26 @@ object BarabasiAlbertSimulation {
     }
   }
 
-  def clusteringCoefficientExperiment(size: List[Int], filename: String, m: Int = 3): Unit = {
+  def clusteringCoefficientWithAverageLengthPathExperiment(size: List[Int], filename: String, m: Int = 3): Unit = {
     val clusteringCoefficients = ListBuffer.empty[(Double, Int)]
+    val averageLengthPaths = ListBuffer.empty[(Double, Int)]
     for {
       n <- size
     } Timer.timer {
       BarabasiAlbertGraph
         .generate(n, m, m)
-        .map(g => clusteringCoefficients += ((g.clusteringCoefficient(), n)))
+        .map(g => {
+          clusteringCoefficients += ((g.clusteringCoefficient(), n))
+          averageLengthPaths += ((g.averageShortestPath(), n))
+        })
     }
-    GraphUtils.saveClusteringCoefficients(clusteringCoefficients.toList, filename)
+    GraphUtils.saveClusteringCoefficients(clusteringCoefficients.toList, customiseFilename("_clustering", filename))
+    GraphUtils.saveAverageLengthPath(averageLengthPaths.toList, customiseFilename("_avg_path", filename))
+  }
+
+  private def customiseFilename(content: String, filename: String): String = {
+    val filenameWithExtension = filename.split('.')
+    filenameWithExtension(0) + content + '.' + filenameWithExtension(1)
   }
 
 }

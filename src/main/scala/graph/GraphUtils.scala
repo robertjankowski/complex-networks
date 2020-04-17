@@ -14,13 +14,29 @@ object GraphUtils {
     )
 
   def saveClusteringCoefficients(clusteringCoefficientsWithSizes: List[(Double, Int)], filename: String): Try[Unit] = {
-    val clusteringCoefficientsWithSizesToFile = clusteringCoefficientsWithSizes
-      .map { case (size, c) => s"$size,$c" }
-      .mkString("\n")
-    Writer.writeToFile(
-      clusteringCoefficientsWithSizesToFile,
+    saveGraphMetrics(
+      clusteringCoefficientsWithSizes,
       filename,
       s"Error in saving graphs clustering coefficients to file [$filename]"
+    )
+  }
+
+  def saveAverageLengthPath(clusteringCoefficientsWithSizes: List[(Double, Int)], filename: String): Try[Unit] = {
+    saveGraphMetrics(
+      clusteringCoefficientsWithSizes,
+      filename,
+      s"Error in saving graphs average length path to file [$filename]"
+    )
+  }
+
+  private def saveGraphMetrics(metricsWithSizes: List[(Double, Int)], filename: String, errorMessage: String): Try[Unit] = {
+    val metricsWithSizesToFile = metricsWithSizes
+      .map { case (size, metric) => s"$size,$metric" }
+      .mkString("\n")
+    Writer.writeToFile(
+      metricsWithSizesToFile,
+      filename,
+      errorMessage
     )
   }
 }

@@ -134,16 +134,21 @@ plot_degree_distribution_m(list(fit_ba_m_1_n_1000000, fit_ba_m_2_n_1000000, fit_
 ```
 
 ## Clustering coefficient
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(ggthemes)
 
-clustering <- read.csv("output/ba_clustering_coefficient.txt", header = FALSE)
+clustering <- read.csv("output/ba_simulation_clusteringtxt", header = FALSE)
+average_path <- read.csv("output/ba_simulation_avg_pathtxt", header = FALSE)
 colnames(clustering) <- c("C", "N")
+colnames(average_path) <- c("l", "N")
 
-ggplot(clustering) + 
-  geom_point(aes(N, C), size = 2.5) +
+ggplot(clustering %>% left_join(average_path)) + 
+  geom_point(aes(N, C, color = "clustering coefficient"), size = 2.5) +
+  geom_point(aes(N, l / 3, color = "average path length"), size = 2.5) +
+  scale_y_continuous("C", sec.axis = sec_axis(~ .*3, name = "l")) + 
   scale_x_log10() +
   theme_few() +
-  theme(panel.grid.minor = element_line(size = 0.2, colour = "grey"))
+  labs(color = "") +
+  theme(legend.position = "top", panel.grid.minor = element_line(size = 0.2, colour = "grey"))
 ```
 
