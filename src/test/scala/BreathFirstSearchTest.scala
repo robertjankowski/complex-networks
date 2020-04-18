@@ -25,4 +25,21 @@ class BreathFirstSearchTest extends FunSuite with Matchers {
     BreathFirstSearch.shortestPath(g, 6, 3).get should contain theSameElementsAs List(6, 2, 3)
   }
 
+  test("should return length of shortest paths") {
+    val g = new UndirectedSimpleGraph[Int]
+    g.addEdge(1, 2)
+    g.addEdge(2, 3)
+    g.addEdge(2, 5)
+    g.addEdge(2, 6)
+    g.addEdge(3, 4)
+    g.addEdge(4, 5)
+    g.addEdge(5, 6)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 1).get shouldEqual List(0, 1, 2, 3, 2, 2)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 2).get shouldEqual List(1, 0, 1, 2, 1, 1)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 3).get shouldEqual List(2, 1, 0, 1, 2, 2)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 4).get shouldEqual List(3, 2, 1, 0, 1, 2)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 5).get shouldEqual List(2, 1, 2, 1, 0, 1)
+    BreathFirstSearch.singleSourceShortestPathLength(g, 6).get shouldEqual List(2, 1, 2, 2, 1, 0)
+  }
+
 }

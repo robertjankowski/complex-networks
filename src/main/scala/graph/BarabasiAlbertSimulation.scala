@@ -22,6 +22,7 @@ object BarabasiAlbertSimulation {
     for {
       n <- size
     } Timer.timer {
+      println(s"Running for size = $n")
       BarabasiAlbertGraph
         .generate(n, m, m)
         .map(g => {

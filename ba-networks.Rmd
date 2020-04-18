@@ -74,6 +74,7 @@ plot_degree_distribution_m <- function(fit_ba_models, size) {
 ```
 
 ```{r}
+# png("ba_n=100.png", width = 600, height = 400)
 ba_m_1_n_100 <- load_file("output/ba_degree_n=100_m=1.txt")
 ba_m_2_n_100 <- load_file("output/ba_degree_n=100_m=2.txt")
 ba_m_5_n_100 <- load_file("output/ba_degree_n=100_m=5.txt")
@@ -83,9 +84,11 @@ fit_ba_m_2_n_100 <- fit_powerlaw(ba_m_2_n_100, bins = 7)
 fit_ba_m_5_n_100 <- fit_powerlaw(ba_m_5_n_100, bins = 7)
 
 plot_degree_distribution_m(list(fit_ba_m_1_n_100, fit_ba_m_2_n_100, fit_ba_m_5_n_100), 100)
+# dev.off()
 ```
 
 ```{r}
+# png("ba_n=1000.png", width = 600, height = 400)
 ba_m_1_n_1000 <- load_file("output/ba_degree_n=1000_m=1.txt")
 ba_m_2_n_1000 <- load_file("output/ba_degree_n=1000_m=2.txt")
 ba_m_5_n_1000 <- load_file("output/ba_degree_n=1000_m=5.txt")
@@ -95,9 +98,11 @@ fit_ba_m_2_n_1000 <- fit_powerlaw(ba_m_2_n_1000, bins = 10)
 fit_ba_m_5_n_1000 <- fit_powerlaw(ba_m_5_n_1000, bins = 10)
 
 plot_degree_distribution_m(list(fit_ba_m_1_n_1000, fit_ba_m_2_n_1000, fit_ba_m_5_n_1000), 1000)
+# dev.off()
 ```
 
 ```{r}
+# png("ba_n=10000.png", width = 600, height = 400)
 ba_m_1_n_10000 <- load_file("output/ba_degree_n=10000_m=1.txt")
 ba_m_2_n_10000 <- load_file("output/ba_degree_n=10000_m=2.txt")
 ba_m_5_n_10000 <- load_file("output/ba_degree_n=10000_m=5.txt")
@@ -107,9 +112,11 @@ fit_ba_m_2_n_10000 <- fit_powerlaw(ba_m_2_n_10000, bins = 10)
 fit_ba_m_5_n_10000 <- fit_powerlaw(ba_m_5_n_10000, bins = 10)
 
 plot_degree_distribution_m(list(fit_ba_m_1_n_10000, fit_ba_m_2_n_10000, fit_ba_m_5_n_10000), 10000)
+# dev.off()
 ```
 
 ```{r}
+# png("ba_n=100000.png", width = 600, height = 400)
 ba_m_1_n_100000 <- load_file("output/ba_degree_n=100000_m=1.txt")
 ba_m_2_n_100000 <- load_file("output/ba_degree_n=100000_m=2.txt")
 ba_m_5_n_100000 <- load_file("output/ba_degree_n=100000_m=5.txt")
@@ -119,9 +126,11 @@ fit_ba_m_2_n_100000 <- fit_powerlaw(ba_m_2_n_100000, bins = 15)
 fit_ba_m_5_n_100000 <- fit_powerlaw(ba_m_5_n_100000, bins = 15)
 
 plot_degree_distribution_m(list(fit_ba_m_1_n_100000, fit_ba_m_2_n_100000, fit_ba_m_5_n_100000), 100000)
+# dev.off()
 ```
 
 ```{r}
+# png("ba_n=1000000.png", width = 600, height = 400)
 ba_m_1_n_1000000 <- load_file("output/ba_degree_n=1000000_m=1.txt")
 ba_m_2_n_1000000 <- load_file("output/ba_degree_n=1000000_m=2.txt")
 ba_m_5_n_1000000 <- load_file("output/ba_degree_n=1000000_m=5.txt")
@@ -131,24 +140,30 @@ fit_ba_m_2_n_1000000 <- fit_powerlaw(ba_m_2_n_1000000, bins = 15)
 fit_ba_m_5_n_1000000 <- fit_powerlaw(ba_m_5_n_1000000, bins = 15)
 
 plot_degree_distribution_m(list(fit_ba_m_1_n_1000000, fit_ba_m_2_n_1000000, fit_ba_m_5_n_1000000), 1000000)
+# dev.off()
 ```
 
 ## Clustering coefficient
 ```{r, warning=FALSE, message=FALSE}
 library(ggthemes)
 
-clustering <- read.csv("output/ba_simulation_clusteringtxt", header = FALSE)
-average_path <- read.csv("output/ba_simulation_avg_pathtxt", header = FALSE)
+clustering <- read.csv("output/ba_simulation_clustering.txt", header = FALSE)
+average_path <- read.csv("output/ba_simulation_avg_path.txt", header = FALSE)
 colnames(clustering) <- c("C", "N")
 colnames(average_path) <- c("l", "N")
 
-ggplot(clustering %>% left_join(average_path)) + 
+path_theory <- data.frame(l_theory=log(average_path$N) / log(log(average_path$N)), N=average_path$N)
+
+ggplot(clustering %>% left_join(average_path) %>% left_join(path_theory)) + 
   geom_point(aes(N, C, color = "clustering coefficient"), size = 2.5) +
   geom_point(aes(N, l / 3, color = "average path length"), size = 2.5) +
+  geom_line(aes(N, l_theory / 3, color = "ln(N) / ln(ln(N))"), size = 1) +
   scale_y_continuous("C", sec.axis = sec_axis(~ .*3, name = "l")) + 
   scale_x_log10() +
   theme_few() +
   labs(color = "") +
   theme(legend.position = "top", panel.grid.minor = element_line(size = 0.2, colour = "grey"))
+
+ggsave("ba_clustering_average_path.png")
 ```
 

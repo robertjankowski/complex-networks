@@ -1,6 +1,7 @@
 package graph
 
 import path.BreathFirstSearch
+import utils.Timer
 
 import scala.collection.mutable
 
@@ -87,13 +88,12 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
   }
 
   override def averageShortestPath(): Double = {
-    val shortestPathsDistance = (for {
-      i <- nodes
-      j <- nodes
-      if i != j
-    } yield BreathFirstSearch.shortestPath(this, i, j).getOrElse(List.empty).length - 1).sum
-    val N = nodes.length
-    shortestPathsDistance.toDouble / (N * (N - 1))
+    val allNodes = nodes
+    val shortestPathsDistances = (for {
+      i <- allNodes
+    } yield BreathFirstSearch.singleSourceShortestPathLength(this, i).getOrElse(List.empty)).flatten.sum
+    val N = allNodes.length
+    shortestPathsDistances.toDouble / (N * (N - 1))
   }
 
   override def toString: String =
