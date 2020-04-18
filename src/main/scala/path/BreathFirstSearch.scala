@@ -33,18 +33,14 @@ object BreathFirstSearch {
     else {
       val seen = mutable.Map.empty[T, Int]
       var level = 0
-      val nextLevel = mutable.Map.empty[T, Int]
-      nextLevel += (from -> 1)
+      val nextLevel = mutable.ArrayBuffer(from)
       while (nextLevel.nonEmpty) {
-        val thisLevel = nextLevel.toMap
+        val thisLevel = nextLevel.clone()
         nextLevel.clear()
-        for ((v, _) <- thisLevel) {
+        for (v <- thisLevel) {
           if (!seen.contains(v)) {
-            seen(v) = level
-            g.neighbours(v) match {
-              case Left(_) =>
-              case Right(neighbours) => nextLevel.addAll(neighbours.zipWithIndex)
-            }
+            seen.update(v, level)
+            g.neighbours(v).foreach(nextLevel ++= _)
           }
         }
         level += 1

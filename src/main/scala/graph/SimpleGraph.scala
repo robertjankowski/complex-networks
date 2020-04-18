@@ -89,7 +89,7 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
   override def averageShortestPath(): Double = {
     val shortestPathsDistances = nodes
       .par
-      .flatMap(BreathFirstSearch.singleSourceShortestPathLength(this, _).get)
+      .flatMap(BreathFirstSearch.singleSourceShortestPathLength(this, _).getOrElse(List.empty))
       .sum
     val N = nodes.length
     shortestPathsDistances.toDouble / (N * (N - 1))

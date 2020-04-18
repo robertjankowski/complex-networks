@@ -147,17 +147,17 @@ plot_degree_distribution_m(list(fit_ba_m_1_n_1000000, fit_ba_m_2_n_1000000, fit_
 ```{r, warning=FALSE, message=FALSE}
 library(ggthemes)
 
-clustering <- read.csv("output/ba_simulation_clustering.txt", header = FALSE)
-average_path <- read.csv("output/ba_simulation_avg_path.txt", header = FALSE)
+clustering <- read.csv("output/ba_simulation_par_2_clustering.txt", header = FALSE)
+average_path <- read.csv("output/ba_simulation_par_2_avg_path.txt", header = FALSE)
 colnames(clustering) <- c("C", "N")
 colnames(average_path) <- c("l", "N")
 
 path_theory <- data.frame(l_theory=log(average_path$N) / log(log(average_path$N)), N=average_path$N)
 
 ggplot(clustering %>% left_join(average_path) %>% left_join(path_theory)) + 
+  geom_line(aes(N, l_theory / 3, color = "ln(N) / ln(ln(N))"), size = 1.1) +
   geom_point(aes(N, C, color = "clustering coefficient"), size = 2.5) +
   geom_point(aes(N, l / 3, color = "average path length"), size = 2.5) +
-  geom_line(aes(N, l_theory / 3, color = "ln(N) / ln(ln(N))"), size = 1) +
   scale_y_continuous("C", sec.axis = sec_axis(~ .*3, name = "l")) + 
   scale_x_log10() +
   theme_few() +
