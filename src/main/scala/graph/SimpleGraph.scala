@@ -1,7 +1,7 @@
 package graph
 
 import path.BreathFirstSearch
-import utils.Timer
+import scala.collection.parallel.CollectionConverters._
 
 import scala.collection.mutable
 
@@ -82,17 +82,16 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
   }
 
   override def clusteringCoefficient(): Double = {
-    var totalClusteringCoefficient = 0.0
-    nodes.foreach(totalClusteringCoefficient += clusteringCoefficient(_))
+    val totalClusteringCoefficient = nodes.par.map(clusteringCoefficient).sum
     totalClusteringCoefficient / nodes.length
   }
 
   override def averageShortestPath(): Double = {
-    val allNodes = nodes
-    val shortestPathsDistances = (for {
-      i <- allNodes
-    } yield BreathFirstSearch.singleSourceShortestPathLength(this, i).getOrElse(List.empty)).flatten.sum
-    val N = allNodes.length
+    val shortestPathsDistances = nodes
+      .par
+      .flatMap(BreathFirstSearch.singleSourceShortestPathLength(this, _).get)
+      .sum
+    val N = nodes.length
     shortestPathsDistances.toDouble / (N * (N - 1))
   }
 

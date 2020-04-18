@@ -7,5 +7,5 @@ object Main extends App {
 
   val sizes2 = List(50, 100, 200, 500, 1000, 2000, 5000)
   BarabasiAlbertSimulation
-    .clusteringCoefficientWithAverageLengthPathExperiment(sizes2, s"output/ba_simulation.txt")
+    .clusteringCoefficientWithAverageLengthPathExperiment(sizes2, s"output/ba_simulation_par.txt")
 }
