@@ -164,6 +164,6 @@ ggplot(clustering %>% left_join(average_path) %>% left_join(path_theory)) +
   labs(color = "") +
   theme(legend.position = "top", panel.grid.minor = element_line(size = 0.2, colour = "grey"))
 
-ggsave("ba_clustering_average_path.png")
+# ggsave("ba_clustering_average_path.png")
 ```
 
