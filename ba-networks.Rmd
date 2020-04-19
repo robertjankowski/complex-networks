@@ -41,15 +41,31 @@ fit_powerlaw <- function(ba, bins = 20) {
 ## Degree distribution
 
 ```{r}
-plot_degree_distribution_m <- function(fit_ba_models, size) {
-  ba_m_1 <- fit_ba_models[[1]]
-  ba_m_2 <- fit_ba_models[[2]]
-  ba_m_5 <- fit_ba_models[[3]]
+library(zeallot)
+
+min_max <- function(a1, a2, a3) {
+    a_min <- min(a1, a2, a3)
+    a_max <- max(a1, a2, a3)
+    c(a_min, a_max)
+}
   
-  y_max <- max(ba_m_1$y, ba_m_2$y, ba_m_5$y)
-  y_min <- min(ba_m_1$y, ba_m_2$y, ba_m_5$y)
-  x_max <- max(ba_m_1$x, ba_m_2$x, ba_m_5$x)
-  x_min <- min(ba_m_1$x, ba_m_2$x, ba_m_5$x)
+plot_by_m <- function(ba_m, colour) {
+  points(ba_m$x, ba_m$y, pch = 19,  col = colour)
+  lines(ba_m$log_breaks, exp(ba_m$A) * ba_m$log_breaks ** ba_m$alpha, 
+        col = colour, lty = 1, lwd = 2)
+}
+
+legend_description <- function(m, alpha) {
+  paste("m=", m, " | alpha= ", round(alpha, 2), sep = "")
+}
+
+plot_degree_distribution_m <- function(fit_ba_models, size) {
+  ba_m_1 <- fit_ba_models$ba_m_1
+  ba_m_2 <- fit_ba_models$ba_m_2
+  ba_m_5 <- fit_ba_models$ba_m_5
+  
+  c(y_min, y_max) %<-% min_max(ba_m_1$y, ba_m_2$y, ba_m_5$y)
+  c(x_min, x_max) %<-% min_max(ba_m_1$x, ba_m_2$x, ba_m_5$x)
   
   plot(ba_m_1$x, ba_m_1$y, log = "xy", pch = 19, xlab = "k", ylab = "P(k)", 
        col = "red", ylim = c(y_min, y_max), xlim = c(x_min, x_max), 
@@ -57,89 +73,86 @@ plot_degree_distribution_m <- function(fit_ba_models, size) {
   lines(ba_m_1$log_breaks, exp(ba_m_1$A) * ba_m_1$log_breaks ** ba_m_1$alpha, 
         col = "red", lty = 1, lwd = 2)
   
-  points(ba_m_2$x, ba_m_2$y, pch = 19,  col = "blue")
-  lines(ba_m_2$log_breaks, exp(ba_m_2$A) * ba_m_2$log_breaks ** ba_m_2$alpha, 
-        col = "blue", lty = 1, lwd = 2)
-  
-  points(ba_m_5$x, ba_m_5$y, pch = 19, col = "green")
-  lines(ba_m_5$log_breaks, exp(ba_m_5$A) * ba_m_5$log_breaks ** ba_m_5$alpha, 
-        col = "green", lty = 1, lwd = 2)
-  
-  m_1 <- paste("m=1 | alpha=", round(ba_m_1$alpha, 2))
-  m_2 <- paste("m=2 | alpha=", round(ba_m_2$alpha, 2))
-  m_5 <- paste("m=5 | alpha=", round(ba_m_5$alpha, 2))
+  plot_by_m(ba_m_2, "blue")
+  plot_by_m(ba_m_5, "green")
+ 
+  m_1 <- legend_description(1, ba_m_1$alpha)
+  m_2 <- legend_description(2, ba_m_2$alpha)
+  m_5 <- legend_description(5, ba_m_5$alpha)
   legend("topright", legend = c(m_1, m_2, m_5), col = c("red", "blue", "green"), 
          lty = 1, cex = 1)
 }
 ```
 
 ```{r}
+get_degree_and_fit <- function(filenames, bins) {
+  ba_m_1 <- load_file(filenames$m_1)
+  ba_m_2 <- load_file(filenames$m_2)
+  ba_m_5 <- load_file(filenames$m_5)
+  
+  fit_ba_m_1 <- fit_powerlaw(ba_m_1, bins = bins)
+  fit_ba_m_2 <- fit_powerlaw(ba_m_2, bins = bins)
+  fit_ba_m_5 <- fit_powerlaw(ba_m_5, bins = bins)
+
+  list(ba_m_1 = fit_ba_m_1, 
+       ba_m_2 = fit_ba_m_2, 
+       ba_m_5 = fit_ba_m_5)
+}
+```
+
+
+```{r}
 # png("ba_n=100.png", width = 600, height = 400)
-ba_m_1_n_100 <- load_file("output/ba_degree_n=100_m=1.txt")
-ba_m_2_n_100 <- load_file("output/ba_degree_n=100_m=2.txt")
-ba_m_5_n_100 <- load_file("output/ba_degree_n=100_m=5.txt")
+filenames_n_100 <- list(m_1 = "output/ba_degree_n=100_m=1.txt",
+                        m_2 = "output/ba_degree_n=100_m=2.txt",
+                        m_5 = "output/ba_degree_n=100_m=5.txt")
+fit_ba_n_100 <- get_degree_and_fit(filenames_n_100, 7)
 
-fit_ba_m_1_n_100 <- fit_powerlaw(ba_m_1_n_100, bins = 7)
-fit_ba_m_2_n_100 <- fit_powerlaw(ba_m_2_n_100, bins = 7)
-fit_ba_m_5_n_100 <- fit_powerlaw(ba_m_5_n_100, bins = 7)
-
-plot_degree_distribution_m(list(fit_ba_m_1_n_100, fit_ba_m_2_n_100, fit_ba_m_5_n_100), 100)
+plot_degree_distribution_m(fit_ba_n_100, 100)
 # dev.off()
 ```
 
 ```{r}
 # png("ba_n=1000.png", width = 600, height = 400)
-ba_m_1_n_1000 <- load_file("output/ba_degree_n=1000_m=1.txt")
-ba_m_2_n_1000 <- load_file("output/ba_degree_n=1000_m=2.txt")
-ba_m_5_n_1000 <- load_file("output/ba_degree_n=1000_m=5.txt")
+filenames_n_1000 <- list(m_1 = "output/ba_degree_n=1000_m=1.txt",
+                         m_2 = "output/ba_degree_n=1000_m=2.txt",
+                         m_5 = "output/ba_degree_n=1000_m=5.txt")
+fit_ba_n_1000 <- get_degree_and_fit(filenames_n_1000, 10)
 
-fit_ba_m_1_n_1000 <- fit_powerlaw(ba_m_1_n_1000, bins = 10)
-fit_ba_m_2_n_1000 <- fit_powerlaw(ba_m_2_n_1000, bins = 10)
-fit_ba_m_5_n_1000 <- fit_powerlaw(ba_m_5_n_1000, bins = 10)
-
-plot_degree_distribution_m(list(fit_ba_m_1_n_1000, fit_ba_m_2_n_1000, fit_ba_m_5_n_1000), 1000)
+plot_degree_distribution_m(fit_ba_n_1000, 1000)
 # dev.off()
 ```
 
 ```{r}
 # png("ba_n=10000.png", width = 600, height = 400)
-ba_m_1_n_10000 <- load_file("output/ba_degree_n=10000_m=1.txt")
-ba_m_2_n_10000 <- load_file("output/ba_degree_n=10000_m=2.txt")
-ba_m_5_n_10000 <- load_file("output/ba_degree_n=10000_m=5.txt")
+filenames_n_10000 <- list(m_1 = "output/ba_degree_n=10000_m=1.txt",
+                          m_2 = "output/ba_degree_n=10000_m=2.txt",
+                          m_5 = "output/ba_degree_n=10000_m=5.txt")
+fit_ba_n_10000 <- get_degree_and_fit(filenames_n_10000, 10)
 
-fit_ba_m_1_n_10000 <- fit_powerlaw(ba_m_1_n_10000, bins = 10)
-fit_ba_m_2_n_10000 <- fit_powerlaw(ba_m_2_n_10000, bins = 10)
-fit_ba_m_5_n_10000 <- fit_powerlaw(ba_m_5_n_10000, bins = 10)
-
-plot_degree_distribution_m(list(fit_ba_m_1_n_10000, fit_ba_m_2_n_10000, fit_ba_m_5_n_10000), 10000)
+plot_degree_distribution_m(fit_ba_n_10000, 10000)
 # dev.off()
 ```
 
 ```{r}
 # png("ba_n=100000.png", width = 600, height = 400)
-ba_m_1_n_100000 <- load_file("output/ba_degree_n=100000_m=1.txt")
-ba_m_2_n_100000 <- load_file("output/ba_degree_n=100000_m=2.txt")
-ba_m_5_n_100000 <- load_file("output/ba_degree_n=100000_m=5.txt")
+filenames_n_100000 <- list(m_1 = "output/ba_degree_n=100000_m=1.txt",
+                           m_2 = "output/ba_degree_n=100000_m=2.txt",
+                           m_5 = "output/ba_degree_n=100000_m=5.txt")
+fit_ba_n_100000 <- get_degree_and_fit(filenames_n_100000, 15)
 
-fit_ba_m_1_n_100000 <- fit_powerlaw(ba_m_1_n_100000, bins = 15)
-fit_ba_m_2_n_100000 <- fit_powerlaw(ba_m_2_n_100000, bins = 15)
-fit_ba_m_5_n_100000 <- fit_powerlaw(ba_m_5_n_100000, bins = 15)
-
-plot_degree_distribution_m(list(fit_ba_m_1_n_100000, fit_ba_m_2_n_100000, fit_ba_m_5_n_100000), 100000)
+plot_degree_distribution_m(fit_ba_n_100000, 100000)
 # dev.off()
 ```
 
 ```{r}
 # png("ba_n=1000000.png", width = 600, height = 400)
-ba_m_1_n_1000000 <- load_file("output/ba_degree_n=1000000_m=1.txt")
-ba_m_2_n_1000000 <- load_file("output/ba_degree_n=1000000_m=2.txt")
-ba_m_5_n_1000000 <- load_file("output/ba_degree_n=1000000_m=5.txt")
+filenames_n_1000000 <- list(m_1 = "output/ba_degree_n=1000000_m=1.txt",
+                          m_2 = "output/ba_degree_n=1000000_m=2.txt",
+                          m_5 = "output/ba_degree_n=1000000_m=5.txt")
+fit_ba_n_1000000 <- get_degree_and_fit(filenames_n_1000000, 15)
 
-fit_ba_m_1_n_1000000 <- fit_powerlaw(ba_m_1_n_1000000, bins = 15)
-fit_ba_m_2_n_1000000 <- fit_powerlaw(ba_m_2_n_1000000, bins = 15)
-fit_ba_m_5_n_1000000 <- fit_powerlaw(ba_m_5_n_1000000, bins = 15)
-
-plot_degree_distribution_m(list(fit_ba_m_1_n_1000000, fit_ba_m_2_n_1000000, fit_ba_m_5_n_1000000), 1000000)
+plot_degree_distribution_m(fit_ba_n_1000000, 1000000)
 # dev.off()
 ```
 
@@ -151,11 +164,10 @@ clustering <- read.csv("output/ba_simulation_par_2_clustering.txt", header = FAL
 average_path <- read.csv("output/ba_simulation_par_2_avg_path.txt", header = FALSE)
 colnames(clustering) <- c("C", "N")
 colnames(average_path) <- c("l", "N")
+average_path$theory <- log(average_path$N) / log(log(average_path$N))
 
-path_theory <- data.frame(l_theory=log(average_path$N) / log(log(average_path$N)), N=average_path$N)
-
-ggplot(clustering %>% left_join(average_path) %>% left_join(path_theory)) + 
-  geom_line(aes(N, l_theory / 3, color = "ln(N) / ln(ln(N))"), size = 1.1) +
+ggplot(clustering %>% left_join(average_path)) + 
+  geom_line(aes(N, theory / 3, color = "ln(N) / ln(ln(N))"), size = 1.1) +
   geom_point(aes(N, C, color = "clustering coefficient"), size = 2.5) +
   geom_point(aes(N, l / 3, color = "average path length"), size = 2.5) +
   scale_y_continuous("C", sec.axis = sec_axis(~ .*3, name = "l")) + 
