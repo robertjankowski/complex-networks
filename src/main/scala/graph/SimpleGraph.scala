@@ -6,22 +6,21 @@ import scala.collection.parallel.CollectionConverters._
 import scala.collection.mutable
 
 /**
- * Simple graph without loops
+ * Simple graph without loops and multiple edges
  *
- * @tparam T type of vertex
+ * @tparam T type of node
  */
-abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
+abstract class SimpleGraph[T] extends Graph[T] with GraphMetrics[T] {
 
   protected val adjacencyList: mutable.Map[T, mutable.Set[T]] = mutable.Map()
 
   override def nodes: List[T] = adjacencyList.keys.toList
 
   override def edges(): List[(T, T)] = {
-    val edges = mutable.Set[(T, T)]()
     val allEdges = adjacencyList.map {
-      case (from, nodes) =>
-        nodes.toList.map(to => (from, to))
+      case (from, nodes) => nodes.toList.map(to => (from, to))
     }.toList.flatten
+    val edges = mutable.Set.empty[(T, T)]
     allEdges.filter { case node@(from, to) =>
       if (edges(node)) false
       else {
@@ -34,13 +33,12 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
 
   override def edges(node: T): List[T] = adjacencyList.getOrElse(node, List.empty).toList
 
-  override def addEdgesFrom(edges: List[(T, T)]): Unit = {
+  override def addEdgesFrom(edges: List[(T, T)]): Unit =
     edges.foreach { case (from, to) => addEdge(from, to) }
-  }
 
-  override def addVertex(vertex: T): Unit =
-    if (!adjacencyList.contains(vertex))
-      adjacencyList.addOne(vertex, mutable.Set.empty[T])
+  override def addNode(node: T): Unit =
+    if (!adjacencyList.contains(node))
+      adjacencyList.addOne(node, mutable.Set.empty[T])
 
   override def degree(node: T): Either[GraphException, Int] =
     adjacencyList
@@ -48,37 +46,34 @@ abstract class SimpleGraph[T]() extends Graph[T] with GraphMetrics[T] {
       .map(_.size)
       .toRight(GraphNotFoundNodeException)
 
-  override def degree(): List[Int] = adjacencyList.map {
-    case (_, nodes) => nodes.size
-  }.toList
+  override def degree(): List[Int] = adjacencyList.values.map(_.size).toList
 
   override def hasEdge(from: T, to: T): Boolean =
     adjacencyList
       .get(from)
-      .exists(nodes => nodes.contains(to))
+      .exists(_.contains(to))
 
   override def hasNode(node: T): Boolean = adjacencyList.contains(node)
 
-  override def neighbours(node: T): Either[GraphException, List[T]] =
+  override def neighbours(node: T): List[T] =
     adjacencyList
       .get(node)
       .map(_.toList)
-      .toRight(GraphNotFoundNodeException)
+      .getOrElse(List.empty)
 
   override def clusteringCoefficient(node: T): Double = {
-    val nodeNeighbours = neighbours(node).getOrElse(List.empty)
-    var neighboursEdges = 0.0
-    for {
-      i <- nodeNeighbours
-      j <- nodeNeighbours
-      if hasEdge(i, j) && i != j
-    } neighboursEdges += 1
-    if (neighboursEdges > 0) {
+    val nodeNeighbours = neighbours(node)
+    if (nodeNeighbours.isEmpty) {
+      0.0
+    } else {
+      val neighboursEdges = (for {
+        i <- nodeNeighbours
+        j <- nodeNeighbours
+        if hasEdge(i, j) && i != j
+      } yield 1).sum.toDouble
       val nodeDegree = degree(node).getOrElse(1)
       neighboursEdges / (nodeDegree * (nodeDegree - 1))
     }
-    else
-      0.0
   }
 
   override def clusteringCoefficient(): Double = {
@@ -113,11 +108,11 @@ object SimpleGraph {
   }
 }
 
-class DirectedSimpleGraph[T]() extends SimpleGraph[T] {
+class DirectedSimpleGraph[T] extends SimpleGraph[T] {
   override def addEdge(from: T, to: T): Unit = {
-    addVertex(from)
-    addVertex(to)
-    adjacencyList.get(from).map(nodes => nodes += to)
+    addNode(from)
+    addNode(to)
+    adjacencyList.get(from).foreach(nodes => nodes += to)
   }
 
   def toUndirected: UndirectedSimpleGraph[T] = {
@@ -133,10 +128,10 @@ class DirectedSimpleGraph[T]() extends SimpleGraph[T] {
   }
 }
 
-class UndirectedSimpleGraph[T]() extends SimpleGraph[T] {
+class UndirectedSimpleGraph[T] extends SimpleGraph[T] {
   override def addEdge(from: T, to: T): Unit = {
-    addVertex(from)
-    addVertex(to)
+    addNode(from)
+    addNode(to)
     adjacencyList.get(from).foreach(nodes => nodes += to)
     adjacencyList.get(to).foreach(nodes => nodes += from)
   }

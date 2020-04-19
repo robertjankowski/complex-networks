@@ -6,30 +6,29 @@ import scala.collection.mutable.ListBuffer
 
 object BarabasiAlbertSimulation {
 
-  def degreeDistributionExperiment(size: List[Int], ms: List[Int], filename: String): Unit = {
+  def degreeDistributionExperiment(sizes: List[Int], ms: List[Int], filename: String): Unit = {
     for {
-      n <- size
+      n <- sizes
       m <- ms
     } Timer.timer {
       BarabasiAlbertGraph.generate(n, m, m)
-        .map(GraphUtils.saveDegrees(_, s"${filename}_n=${n}_m=$m.txt"))
-    }
+        .foreach(GraphUtils.saveDegrees(_, s"${filename}_n=${n}_m=$m.txt"))
+    }(s"Running for size = $n, m = $m")
   }
 
-  def clusteringCoefficientWithAverageLengthPathExperiment(size: List[Int], filename: String, m: Int = 3): Unit = {
+  def clusteringCoefficientWithAverageLengthPathExperiment(sizes: List[Int], filename: String, m: Int = 3): Unit = {
     val clusteringCoefficients = ListBuffer.empty[(Double, Int)]
     val averageLengthPaths = ListBuffer.empty[(Double, Int)]
     for {
-      n <- size
+      n <- sizes
     } Timer.timer {
-      println(s"Running for size = $n")
       BarabasiAlbertGraph
         .generate(n, m, m)
-        .map(g => {
+        .foreach(g => {
           clusteringCoefficients += ((g.clusteringCoefficient(), n))
           averageLengthPaths += ((g.averageShortestPath(), n))
         })
-    }
+    }(s"Running for size = $n")
     GraphUtils.saveClusteringCoefficients(clusteringCoefficients.toList, customiseFilename("_clustering", filename))
     GraphUtils.saveAverageLengthPath(averageLengthPaths.toList, customiseFilename("_avg_path", filename))
   }

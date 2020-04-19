@@ -20,15 +20,15 @@ class SimpleGraphTest extends FunSuite with Matchers {
 
   test("should create complete graphs") {
     val testDegree = 10
-    val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], testDegree)
+    val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], testDegree + 1)
     for {
       i <- 0 until testDegree
-    } g.degree(i) shouldBe Right(testDegree - 1)
+    } g.degree(i) shouldBe Right(testDegree)
 
-    val gd = SimpleGraph.complete(new DirectedSimpleGraph[Int], testDegree)
+    val gd = SimpleGraph.complete(new DirectedSimpleGraph[Int], testDegree + 1)
     for {
       i <- 0 until testDegree
-    } gd.degree(i) shouldBe Right(testDegree - 1)
+    } gd.degree(i) shouldBe Right(testDegree)
   }
 
   test("should return graph nodes") {
@@ -58,31 +58,29 @@ class SimpleGraphTest extends FunSuite with Matchers {
     g.addEdge("a", "c")
     g.addEdge("b", "d")
     val ud = g.toUndirected
-    ud.edges should contain theSameElementsAs List(("a", "c"), ("b", "d"))
+    ud.edges() should contain theSameElementsAs List(("a", "c"), ("b", "d"))
+    ud.edges("a") should contain theSameElementsAs List("c")
+    ud.edges("c") should contain theSameElementsAs List("a")
+    ud.edges("b") should contain theSameElementsAs List("d")
+    ud.edges("d") should contain theSameElementsAs List("b")
   }
 
   test("should check number of edges in complete graph") {
     val N = 10
     val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], N)
-    g.edges.length shouldEqual N * (N - 1) / 2
+    g.edges().length shouldEqual N * (N - 1) / 2
   }
 
   test("should return neighbours of a given node") {
     val g = new UndirectedSimpleGraph[String]
     g.addEdge("a", "b")
     g.addEdge("a", "c")
-    g.neighbours("a") match {
-      case Left(_) =>
-      case Right(neighbours) => neighbours should contain theSameElementsAs List("b", "c")
-    }
+    g.neighbours("a") should contain theSameElementsAs List("b", "c")
   }
 
   test("should return no neighbours") {
     val g = new UndirectedSimpleGraph[String]
-    g.neighbours("a") match {
-      case Left(ex) => ex.message shouldEqual "No found node in graph"
-      case Right(_) =>
-    }
+    g.neighbours("a") shouldEqual List.empty
   }
 
   test("should correctly calculate C") {
@@ -95,7 +93,7 @@ class SimpleGraphTest extends FunSuite with Matchers {
     g.clusteringCoefficient(1) shouldEqual (1.0 / 6)
   }
 
-  test("should complete graph has zero C") {
+  test("should complete graph has C = 1") {
     val g = SimpleGraph.complete(new UndirectedSimpleGraph[Int], 10)
     g.clusteringCoefficient() shouldEqual 1.0
   }

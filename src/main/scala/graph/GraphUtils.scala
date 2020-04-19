@@ -6,6 +6,8 @@ import scala.util.Try
 
 object GraphUtils {
 
+  type MetricsWithSizes = List[(Double, Int)]
+
   def saveDegrees[G <: Graph[_]](g: G, filename: String): Try[Unit] =
     Writer.writeToFile(
       g.degree().mkString("\n"),
@@ -13,7 +15,7 @@ object GraphUtils {
       s"Error in saving graph's degrees to file [$filename]"
     )
 
-  def saveClusteringCoefficients(clusteringCoefficientsWithSizes: List[(Double, Int)], filename: String): Try[Unit] = {
+  def saveClusteringCoefficients(clusteringCoefficientsWithSizes: MetricsWithSizes, filename: String): Try[Unit] = {
     saveGraphMetrics(
       clusteringCoefficientsWithSizes,
       filename,
@@ -21,15 +23,15 @@ object GraphUtils {
     )
   }
 
-  def saveAverageLengthPath(clusteringCoefficientsWithSizes: List[(Double, Int)], filename: String): Try[Unit] = {
+  def saveAverageLengthPath(averagePathLengthsWithSizes: MetricsWithSizes, filename: String): Try[Unit] = {
     saveGraphMetrics(
-      clusteringCoefficientsWithSizes,
+      averagePathLengthsWithSizes,
       filename,
       s"Error in saving graphs average length path to file [$filename]"
     )
   }
 
-  private def saveGraphMetrics(metricsWithSizes: List[(Double, Int)], filename: String, errorMessage: String): Try[Unit] = {
+  private def saveGraphMetrics(metricsWithSizes: MetricsWithSizes, filename: String, errorMessage: String): Try[Unit] = {
     val metricsWithSizesToFile = metricsWithSizes
       .map { case (size, metric) => s"$size,$metric" }
       .mkString("\n")

@@ -10,7 +10,6 @@ object Writer {
       writer.write(content)
       writer.close()
     }.recover {
-      case ex: Exception =>
-        println(s"$errorMessage\n${ex.getMessage}")
+      case ex: Exception => println(s"$errorMessage\n${ex.getMessage}")
     }
 }

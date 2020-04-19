@@ -8,7 +8,7 @@ trait Graph[T] {
 
   def edges(node: T): List[T]
 
-  def addVertex(vertex: T): Unit
+  def addNode(node: T): Unit
 
   def addEdge(from: T, to: T): Unit
 
@@ -22,5 +22,5 @@ trait Graph[T] {
 
   def hasNode(node: T): Boolean
 
-  def neighbours(node: T): Either[GraphException, List[T]]
+  def neighbours(node: T): List[T]
 }

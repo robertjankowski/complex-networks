@@ -11,8 +11,7 @@ object BreathFirstSearch {
     if (!(g.hasNode(from) && g.hasNode(to)))
       None
     else {
-      val queue = mutable.Queue.empty[(T, mutable.ArrayBuffer[T])]
-      queue += ((from, mutable.ArrayBuffer(from)))
+      val queue: mutable.Queue[(T, mutable.ArrayBuffer[T])] = mutable.Queue((from, mutable.ArrayBuffer(from)))
       while (queue.nonEmpty) {
         val (node, path) = queue.dequeue()
         for (next <- g.edges(node).diff(path.distinct)) {
@@ -40,7 +39,7 @@ object BreathFirstSearch {
         for (v <- thisLevel) {
           if (!seen.contains(v)) {
             seen.update(v, level)
-            g.neighbours(v).foreach(nextLevel ++= _)
+            nextLevel ++= g.neighbours(v)
           }
         }
         level += 1
