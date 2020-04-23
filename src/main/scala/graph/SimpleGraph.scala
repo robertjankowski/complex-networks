@@ -98,6 +98,17 @@ abstract class SimpleGraph[T] extends Graph[T] with GraphMetrics[T] {
 }
 
 object SimpleGraph {
+  type AdjacencyMatrix = Array[Array[Int]]
+
+  def fromAdjacencyMatrix[G <: Graph[Int]](g: G, matrix: AdjacencyMatrix): G = {
+    for {
+      i <- matrix.indices
+      j <- matrix.indices
+      if matrix(i)(j) == 1
+    } g.addEdge(i, j)
+    g
+  }
+
   def complete[G <: Graph[Int]](g: G, n: Int): G = {
     for {
       i <- 0 until n

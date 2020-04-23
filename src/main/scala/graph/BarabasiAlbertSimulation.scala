@@ -2,7 +2,7 @@ package graph
 
 import utils.Timer
 
-import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 object BarabasiAlbertSimulation {
 
@@ -16,7 +16,7 @@ object BarabasiAlbertSimulation {
     }(s"Running for size = $n, m = $m")
   }
 
-  def clusteringCoefficientWithAverageLengthPathExperiment(sizes: List[Int], filename: String, m: Int = 3): Unit = {
+  def clusteringCoefficientWithAverageLengthPathExperiment(sizes: List[Int], filename: String, m: Int = 3): Try[Unit] = {
     val (clusteringCoefficients, averageLengthPaths) = (for {
       n <- sizes
     } yield Timer.timer {

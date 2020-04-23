@@ -1,0 +1,42 @@
+---
+title: "network-visualization"
+author: "Robert Jankowski"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(igraph)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, fig.width=7, fig.height=7}
+load_graph_from_edgelist <- function(filename) {
+  read.csv(filename, sep = "\t", header = FALSE) %>%
+    graph_from_data_frame(., directed = FALSE)
+}
+
+g <- load_graph_from_edgelist("output/ba_network_100.edgelist")
+deg <- degree(g, mode = "all")
+plot(g, vertex.size = deg, vertex.color = "gray50", vertex.label = NA)
+```
+
+```{r, fig.width=7, fig.height=7}
+er <- load_graph_from_edgelist("output/er_network.edgelist")
+deg_er <- degree(er, mode = "all")
+plot(er, vertex.size = deg_er, vertex.color = "gray50", vertex.label = NA)
+```
+
+```{r}
+h1 <- hist(deg, plot = FALSE)
+h2 <- hist(deg_er, plot = FALSE)
+
+plot(h1$mids, h1$density + 1e-4, col = "red", ylim = c(1e-4, 0.18), type = "l")
+points(h1$mids, h1$density + 1e-4, col = "red", pch = 19)
+lines(h2$mids, h2$density, col = "blue")
+points(h2$mids, h2$density, col = "blue", pch = 19)
+```
+
