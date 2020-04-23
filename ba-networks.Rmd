@@ -161,8 +161,8 @@ plot_degree_distribution_m(fit_ba_n_1000000, 1000000)
 library(ggthemes)
 
 clustering_avg_length <- 
-  read.csv("output/ba_simulation_par_2_clustering.txt", header = FALSE, col.names = c("C", "N")) %>%
-  left_join(read.csv("output/ba_simulation_par_2_avg_path.txt", header = FALSE, col.names = c("l", "N"))) %>%
+  read.csv("output/ba_simulation_par_new_clustering.txt", header = FALSE, col.names = c("C", "N")) %>%
+  left_join(read.csv("output/ba_simulation_par_new_avg_path.txt", header = FALSE, col.names = c("l", "N"))) %>%
   mutate(l_theory = log(N) / log(log(N)))
 
 ggplot(clustering_avg_length) + 
