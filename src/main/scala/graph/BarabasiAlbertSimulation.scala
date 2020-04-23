@@ -17,20 +17,16 @@ object BarabasiAlbertSimulation {
   }
 
   def clusteringCoefficientWithAverageLengthPathExperiment(sizes: List[Int], filename: String, m: Int = 3): Unit = {
-    val clusteringCoefficients = ListBuffer.empty[(Double, Int)]
-    val averageLengthPaths = ListBuffer.empty[(Double, Int)]
-    for {
+    val (clusteringCoefficients, averageLengthPaths) = (for {
       n <- sizes
-    } Timer.timer {
+    } yield Timer.timer {
       BarabasiAlbertGraph
         .generate(n, m, m)
-        .foreach(g => {
-          clusteringCoefficients += ((g.clusteringCoefficient(), n))
-          averageLengthPaths += ((g.averageShortestPath(), n))
-        })
-    }(s"Running for size = $n")
-    GraphUtils.saveClusteringCoefficients(clusteringCoefficients.toList, customiseFilename("_clustering", filename))
-    GraphUtils.saveAverageLengthPath(averageLengthPaths.toList, customiseFilename("_avg_path", filename))
+        .map(g => (g.clusteringCoefficient(), g.averageShortestPath()))
+        .getOrElse((0.0, 0.0))
+    }(s"Running for size = $n")).unzip
+    GraphUtils.saveClusteringCoefficients(clusteringCoefficients.zip(sizes), customiseFilename("_clustering", filename))
+    GraphUtils.saveAverageLengthPath(averageLengthPaths.zip(sizes), customiseFilename("_avg_path", filename))
   }
 
   private def customiseFilename(content: String, filename: String): String = {
