@@ -25,16 +25,22 @@ plot(g, vertex.size = deg, vertex.color = "gray50", vertex.label = NA)
 ```
 
 ```{r, fig.width=7, fig.height=7}
-er <- load_graph_from_edgelist("output/er_network.edgelist")
+er <- load_graph_from_edgelist("output/er_simulation.edgelist")
 deg_er <- degree(er, mode = "all")
-plot(er, vertex.size = deg_er, vertex.color = "gray50", vertex.label = NA)
+plot(er, vertex.size = 0.1*deg_er, vertex.color = "gray50", vertex.label = NA)
 ```
 
 ```{r}
-h1 <- hist(deg, plot = FALSE)
-h2 <- hist(deg_er, plot = FALSE)
+er_mc <- load_graph_from_edgelist("output/er_mc_simulation_2.edgelist")
+deg_er_mc <- degree(er_mc, mode = "all")
+plot(er_mc, vertex.size = 0.1*deg_er, vertex.color = "gray50", vertex.label = NA)
+```
 
-plot(h1$mids, h1$density + 1e-4, col = "red", ylim = c(1e-4, 0.18), type = "l")
+```{r}
+h1 <- hist(deg_er, plot = FALSE)
+h2 <- hist(deg_er_mc, plot = FALSE)
+
+plot(h1$mids, h1$density + 1e-4, col = "red", xlim = c(70, 100), type = "l", ylab = "P(k)", xlab = "k")
 points(h1$mids, h1$density + 1e-4, col = "red", pch = 19)
 lines(h2$mids, h2$density, col = "blue")
 points(h2$mids, h2$density, col = "blue", pch = 19)
