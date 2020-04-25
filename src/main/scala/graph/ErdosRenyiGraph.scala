@@ -2,6 +2,7 @@ package graph
 
 import graph.SimpleGraph.AdjacencyMatrix
 
+import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 object ErdosRenyiGraph {
@@ -24,21 +25,31 @@ object ErdosRenyiGraph {
       val adjacencyMatrix: AdjacencyMatrix = Array.ofDim[Int](n, n)
       val theta = math.log(p / (1 - p))
       val acceptanceProbability = math.exp(-theta)
+      var edgeCounter = 0
+      val nEdges = ListBuffer.empty[Int]
+      val cutoffLength = 30
       for (_ <- 0 until nIterations) {
         val x = r.nextInt(n)
-        val y = r.nextInt(x + 1) // why not `n`?
+        val y = r.nextInt(n)
+        nEdges += edgeCounter
         if (x != y) {
           if (adjacencyMatrix(x)(y) == 0) {
             adjacencyMatrix(x)(y) = 1
+            edgeCounter += 1
           } else if (adjacencyMatrix(x)(y) == 1) {
-            if (r.nextDouble() < acceptanceProbability)
+            if (r.nextDouble() < acceptanceProbability) {
               adjacencyMatrix(x)(y) = 0
+              edgeCounter -= 1
+            }
           }
         }
+        if (nEdges.length > cutoffLength) {
+          // TODO: break look if <E> = const.
+        }
       }
-      // TODO: sth is not working correctly, directed or undirected graph??
       println(countEdges(adjacencyMatrix))
-      Some(SimpleGraph.fromAdjacencyMatrix(new UndirectedSimpleGraph[Int], adjacencyMatrix))
+      println(edgeCounter / 2)
+      Some(SimpleGraph.fromAdjacencyMatrix(new DirectedSimpleGraph[Int], adjacencyMatrix))
     }
   }
 

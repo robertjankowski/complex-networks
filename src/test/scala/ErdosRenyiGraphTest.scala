@@ -12,7 +12,7 @@ class ErdosRenyiGraphTest extends FunSuite with Matchers {
     val p = 0.02
     val N = 1000
     val g = ErdosRenyiGraph.randomlyFillAdjacencyMatrix(N, p)
-    g.degree().sum.toDouble / g.degree().length shouldEqual (N * p) +- 1
+    g.degree().sum.toDouble / g.degree().length shouldEqual (N * p) +- 0.5
   }
 
   test("MC simulation does not run when p < 0.5") {
@@ -20,10 +20,11 @@ class ErdosRenyiGraphTest extends FunSuite with Matchers {
   }
 
   test("MC simulation return graph with <k> = p * N") {
-    val p = 0.8
+    val p = 0.55
     val N = 100
     val g = ErdosRenyiGraph.monteCarloSimulation(N, p, 100000).get
-    g.degree().sum.toDouble / g.degree().length shouldEqual (N * p) +- 1
+    val meanDegree = g.degree().sum.toDouble / g.degree().length
+    meanDegree shouldEqual (N * p) +- 0.5
   }
 
 }
