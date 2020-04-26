@@ -1,6 +1,6 @@
 package graph
 
-import utils.Timer
+import utils.{Timer, Writer}
 
 import scala.util.Try
 
@@ -25,13 +25,14 @@ object BarabasiAlbertSimulation {
         .map(g => (g.clusteringCoefficient(), g.averageShortestPath()))
         .getOrElse((0.0, 0.0))
     }(s"Running for size = $n")).unzip
-    GraphUtils.saveClusteringCoefficients(clusteringCoefficients.zip(sizes), customiseFilename("_clustering", filename))
-    GraphUtils.saveAverageLengthPath(averageLengthPaths.zip(sizes), customiseFilename("_avg_path", filename))
-  }
-
-  private def customiseFilename(content: String, filename: String): String = {
-    val filenameWithExtension = filename.split('.')
-    filenameWithExtension(0) + content + '.' + filenameWithExtension(1)
+    GraphUtils.saveClusteringCoefficients(
+      clusteringCoefficients.zip(sizes),
+      Writer.customiseFilename("_clustering", filename)
+    )
+    GraphUtils.saveAverageLengthPath(
+      averageLengthPaths.zip(sizes),
+      Writer.customiseFilename("_avg_path", filename)
+    )
   }
 
 }

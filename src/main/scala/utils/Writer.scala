@@ -12,4 +12,10 @@ object Writer {
     }.recover {
       case ex: Exception => println(s"$errorMessage\n${ex.getMessage}")
     }
+
+
+  def customiseFilename(content: String, filename: String): String = {
+    val filenameWithExtension = filename.split('.')
+    filenameWithExtension(0) + content + '.' + filenameWithExtension(1)
+  }
 }

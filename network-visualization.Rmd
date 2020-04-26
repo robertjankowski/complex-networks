@@ -24,25 +24,23 @@ deg <- degree(g, mode = "all")
 plot(g, vertex.size = deg, vertex.color = "gray50", vertex.label = NA)
 ```
 
-```{r, fig.width=7, fig.height=7}
-er <- load_graph_from_edgelist("output/er_simulation.edgelist")
-deg_er <- degree(er, mode = "all")
-plot(er, vertex.size = 0.1*deg_er, vertex.color = "gray50", vertex.label = NA)
-```
 
-```{r}
-er_mc <- load_graph_from_edgelist("output/er_mc_simulation_2.edgelist")
-deg_er_mc <- degree(er_mc, mode = "all")
-plot(er_mc, vertex.size = 0.1*deg_er, vertex.color = "gray50", vertex.label = NA)
-```
+```{r, warning=FALSE, message=FALSE}
+deg_er <- read_csv("output/p_55_n_100er_traditional_network.txt", col_names = c("traditional_degree"))
+deg_er_mc <- read_csv("output/p_55_n_100er_mc_network.txt", col_names = c("MC degree"))
+deg <- deg_er %>% add_column(MC_degree = deg_er_mc$`MC degree`)
 
-```{r}
-h1 <- hist(deg_er, plot = FALSE)
-h2 <- hist(deg_er_mc, plot = FALSE)
-
-plot(h1$mids, h1$density + 1e-4, col = "red", xlim = c(70, 100), type = "l", ylab = "P(k)", xlab = "k")
-points(h1$mids, h1$density + 1e-4, col = "red", pch = 19)
-lines(h2$mids, h2$density, col = "blue")
-points(h2$mids, h2$density, col = "blue", pch = 19)
+ggplot(deg) +
+  geom_histogram(aes(MC_degree, y = ..density.., fill = "Monte Carlo simulation"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  # geom_density(aes(MC_degree, fill = "Monte Carlo simulation"), alpha = 0.6) + 
+  geom_histogram(aes(traditional_degree, y = ..density.., fill = "Traditional method"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  # geom_density(aes(traditional_degree, fill = "Traditional method"), alpha = 0.6) + 
+  scale_fill_discrete(name = "") +
+  xlab("k") + ylab("P(k)") + 
+  theme_bw() +
+  theme(legend.position = "top")
+# ggsave("er_mc_vs_traditional.png")
 ```
 

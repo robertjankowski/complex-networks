@@ -1,11 +1,6 @@
-import graph.{ErdosRenyiGraph, GraphUtils}
-
-import scala.util.Random
+import graph.ErdosRenyiSimulation
 
 object Main extends App {
-  implicit val r = Random
-  GraphUtils.saveGraph(
-    ErdosRenyiGraph.randomlyFillAdjacencyMatrix(100, 0.06),
-    "output/er_network.edgelist"
-  )
+  ErdosRenyiSimulation
+    .compareTraditionalMethodWithMonteCarloSimulation(100, 0.55, "output/p_55_n_100.txt")
 }
