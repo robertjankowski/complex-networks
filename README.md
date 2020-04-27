@@ -11,7 +11,7 @@
 
 2. **Erdos-Renyi graphs**
 
-| <img src="figures/er_mc_vs_traditional.png" alt="er_mc_vs_traditional_v2.png" width="650"/> | <img src="figures/er_mc_vs_traditional.png" alt="er_mc_vs_traditional.png" width="650"/> |
+| <img src="figures/er_mc_vs_traditional_v2.png" alt="er_mc_vs_traditional_v2.png" width="650"/> | <img src="figures/er_mc_vs_traditional.png" alt="er_mc_vs_traditional.png" width="650"/> |
 | :-----------------------------------------------: | :---------------------------------------------: |
 | N = 1000, p = 0.55                     |  N = 100, p = 0.55                          |
 
