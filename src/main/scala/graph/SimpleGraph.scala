@@ -142,7 +142,6 @@ class UndirectedSimpleGraph[T] extends SimpleGraph[T] {
     addNode(from)
     addNode(to)
     adjacencyList.get(from).foreach(nodes => nodes += to)
-
     adjacencyList.get(to).foreach(nodes => nodes += from)
   }
 }

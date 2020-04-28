@@ -11,8 +11,7 @@ object ErdosRenyiSimulation {
   def compareTraditionalMethodWithMonteCarloSimulation(n: Int, p: Double, filename: String): Unit =
     monteCarloSimulation(n, p) match {
       case Some(mcGraph) =>
-        val traditionalMethodGraph = randomlyFillAdjacencyMatrix(n, p)
-        GraphUtils.saveDegrees(traditionalMethodGraph, Writer.customiseFilename("er_traditional_network", filename))
+        GraphUtils.saveDegrees(randomlyFillAdjacencyMatrix(n, p), Writer.customiseFilename("er_traditional_network", filename))
         GraphUtils.saveDegrees(mcGraph, Writer.customiseFilename("er_mc_network", filename))
         ()
       case None => println("p must be greater than 0.5")
