@@ -112,4 +112,26 @@ class SimpleGraphTest extends FunSuite with Matchers {
     g.averageShortestPath() shouldEqual 1.0
   }
 
+  test("should create directed graph from adjacency matrix") {
+    val matrix = Array.ofDim[Int](3, 3)
+    matrix(0)(1) = 1
+    matrix(0)(2) = 1
+    matrix(2)(1) = 1
+    val g = SimpleGraph.fromAdjacencyMatrix(new DirectedSimpleGraph[Int], matrix)
+    g.edges().length shouldEqual 3
+    g.nodes should contain theSameElementsAs List(0, 1, 2)
+    g.edges() should contain theSameElementsAs List((0, 1), (0, 2), (2, 1))
+  }
+
+  test("should create undirected graph from adjacency matrix") {
+    val matrix = Array.ofDim[Int](3, 3)
+    matrix(0)(1) = 1
+    matrix(0)(2) = 1
+    matrix(1)(2) = 1
+    matrix(2)(1) = 1
+    val g = SimpleGraph.fromAdjacencyMatrix(new UndirectedSimpleGraph[Int], matrix)
+    g.edges().length shouldEqual 3
+    g.nodes should contain theSameElementsAs List(0, 1, 2)
+  }
+
 }

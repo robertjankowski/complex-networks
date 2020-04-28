@@ -1,0 +1,48 @@
+---
+title: "network-visualization"
+author: "Robert Jankowski"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(igraph)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, fig.width=7, fig.height=7}
+load_graph_from_edgelist <- function(filename) {
+  read.csv(filename, sep = "\t", header = FALSE) %>%
+    graph_from_data_frame(., directed = FALSE)
+}
+
+g <- load_graph_from_edgelist("output/ba_network_100.edgelist")
+deg <- degree(g, mode = "all")
+plot(g, vertex.size = deg, vertex.color = "gray50", vertex.label = NA)
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+deg_er <- read_csv("output/p_55_n_1000er_traditional_network.txt", col_names = c("traditional_degree"))
+deg_er_mc <- read_csv("output/p_55_n_1000er_mc_network.txt", col_names = c("MC degree"))
+deg <- deg_er %>% add_column(MC_degree = deg_er_mc$`MC degree`)
+
+N <- 1000
+p <- 0.55
+ggplot(deg) +
+  geom_histogram(aes(MC_degree, y = ..density.., fill = "Monte Carlo simulation"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  geom_histogram(aes(traditional_degree, y = ..density.., fill = "Traditional method"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  geom_vline(aes(xintercept = p * (N - 1), color = "<k> = p(N-1)"), size = 2) + 
+  scale_fill_discrete(name = "") +
+  scale_color_manual(name = "", values = c(`<k> = p(N-1)` = "orange")) + 
+  labs(x = "k", y = "P(k)", title = paste("N = ", N, ", p = ", p, sep = "")) +
+  theme_bw() + 
+  theme(legend.position = "bottom")
+ggsave("figures/er_mc_vs_traditional_v2.png")
+```
+

@@ -66,11 +66,9 @@ abstract class SimpleGraph[T] extends Graph[T] with GraphMetrics[T] {
     if (nodeNeighbours.isEmpty) {
       0.0
     } else {
-      val neighboursEdges = (for {
-        i <- nodeNeighbours
-        j <- nodeNeighbours
-        if hasEdge(i, j) && i != j
-      } yield 1).sum.toDouble
+      val neighboursEdges = nodeNeighbours
+        .flatMap(i => nodeNeighbours.filter(j => hasEdge(i, j) && i != j))
+        .length.toDouble
       val nodeDegree = degree(node).getOrElse(1)
       neighboursEdges / (nodeDegree * (nodeDegree - 1))
     }
@@ -93,11 +91,22 @@ abstract class SimpleGraph[T] extends Graph[T] with GraphMetrics[T] {
   override def toString: String =
     (for {
       (keys, nodes) <- adjacencyList
-    } yield keys + "-> " + nodes.mkString(","))
+    } yield keys.toString + "-> " + nodes.mkString(","))
       .mkString("\n")
 }
 
 object SimpleGraph {
+  type AdjacencyMatrix = Array[Array[Int]]
+
+  def fromAdjacencyMatrix[G <: Graph[Int]](g: G, matrix: AdjacencyMatrix): G = {
+    for {
+      i <- matrix.indices
+      j <- matrix.indices
+      if matrix(i)(j) == 1
+    } g.addEdge(i, j)
+    g
+  }
+
   def complete[G <: Graph[Int]](g: G, n: Int): G = {
     for {
       i <- 0 until n

@@ -31,6 +31,17 @@ object GraphUtils {
     )
   }
 
+  def saveGraph[T](g: Graph[T], filename: String): Try[Unit] = {
+    val edgeList = g.edges().map {
+      case (from, to) => s"$from\t$to"
+    }.mkString("\n")
+    Writer.writeToFile(
+      edgeList,
+      filename,
+      s"Error in saving edge list to file [$filename]"
+    )
+  }
+
   private def saveGraphMetrics(metricsWithSizes: MetricsWithSizes, filename: String, errorMessage: String): Try[Unit] = {
     val metricsWithSizesToFile = metricsWithSizes
       .map { case (size, metric) => s"$size,$metric" }

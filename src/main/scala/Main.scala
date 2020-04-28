@@ -1,11 +1,6 @@
-import graph.BarabasiAlbertSimulation
+import graph.ErdosRenyiSimulation
 
 object Main extends App {
-  val sizes = List(100, 1000, 10000, 100000, 1000000)
-  val ms = List(1, 2, 5)
-  //  BarabasiAlbertSimulation.degreeDistributionExperiment(sizes, ms, "output/ba_degree")
-
-  val sizes2 = List(10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000)
-  BarabasiAlbertSimulation
-    .clusteringCoefficientWithAverageLengthPathExperiment(sizes2, s"output/ba_simulation_par_new.txt")
+  ErdosRenyiSimulation
+    .compareTraditionalMethodWithMonteCarloSimulation(1000, 0.55, "output/p_55_n_1000.txt")
 }
