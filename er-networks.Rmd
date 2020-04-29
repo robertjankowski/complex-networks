@@ -1,0 +1,65 @@
+---
+title: "Erdős–Rényi model"
+author: "Robert Jankowski"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(igraph)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load_er_graph_degrees <- function(filename_traditional, filename_mc) {
+  deg_er <- read_csv(filename_traditional, col_names = c("traditional_degree"))
+  deg_er_mc <- read_csv(filename_mc, col_names = c("MC degree"))
+  deg_er %>% add_column(MC_degree = deg_er_mc$`MC degree`)
+}
+
+plot_er_degree <- function(deg, N, p) {
+  ggplot(deg) +
+  geom_histogram(aes(MC_degree, y = ..density.., fill = "Monte Carlo simulation"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  geom_histogram(aes(traditional_degree, y = ..density.., fill = "Traditional method"), 
+                 bins = 20, alpha = 0.5, color = "black") +
+  geom_vline(aes(xintercept = p * (N - 1), color = "<k> = p(N-1)"), size = 2) + 
+  scale_fill_discrete(name = "") +
+  scale_color_manual(name = "", values = c(`<k> = p(N-1)` = "orange")) + 
+  labs(x = "k", y = "P(k)", title = paste("N = ", N, ", p = ", p, sep = "")) +
+  theme_bw()
+}
+```
+
+## ER graphs `p = 0.55`
+```{r fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+deg_n_100 <- load_er_graph_degrees("output/p_55_n_100er_traditional_network.txt",
+                                   "output/p_55_n_100er_mc_network.txt")
+
+plot_er_degree(deg_n_100, N = 100, p = 0.55)
+```
+
+```{r fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+deg_n_1000 <- load_er_graph_degrees("output/p_55_n_1000er_traditional_network.txt",
+                                    "output/p_55_n_1000er_mc_network.txt")
+
+plot_er_degree(deg_n_1000, N = 1000, p = 0.55)
+```
+
+## ER graphs `p = 0.8`
+```{r fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+deg_n_100 <- load_er_graph_degrees("output/p_80_n_100er_traditional_network.txt",
+                                   "output/p_80_n_100er_mc_network.txt")
+
+plot_er_degree(deg_n_100, N = 100, p = 0.80)
+```
+
+```{r fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+deg_n_1000 <- load_er_graph_degrees("output/p_80_n_1000er_traditional_network.txt",
+                                    "output/p_80_n_1000er_mc_network.txt")
+
+plot_er_degree(deg_n_1000, N = 1000, p = 0.80)
+```
